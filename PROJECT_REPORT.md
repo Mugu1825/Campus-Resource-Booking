@@ -6,7 +6,7 @@
 
 ---
 
-## 1. Project Overview & Motivation
+## 1. Project Motivation & Problem Statement
 
 In our college, reserving shared facilities—like computer labs, seminar halls, projectors, or the auditorium—is still handled manually using paper registers or informal messages. This causes frequent scheduling clashes, confusion over who approved what, and no real-time way for students to know if a lab is free.
 
@@ -94,21 +94,7 @@ When a student clicks "Check Availability" on any resource card, an interactive 
 
 ---
 
-## 7. Testing & Verification
-
-I wrote an automated verification suite (`backend/tests/verify_codebase.py`) that tests all 31 core scenarios against the live database:
-- ✅ Public health check & department list
-- ✅ Register number regex validation & department extraction
-- ✅ Staff approval lifecycle (pending gate $\rightarrow$ admin approval $\rightarrow$ login)
-- ✅ Resource tier restrictions (staff cannot create premium)
-- ✅ Booking rules (4-hour regular limit, 48-hour hackathon, conflict detection)
-- ✅ Hierarchical approvals (staff blocked on premium/hackathons)
-- ✅ Student self-cancellation rules
-- **Result: 31 / 31 tests passed (100% success rate).**
-
----
-
-## 8. Conclusion & What I Learned
+## 7. Conclusion & What I Learned
 
 Building this project gave me practical experience taking a full-stack web application from idea to production:
 - Structuring RESTful APIs with Flask blueprints.

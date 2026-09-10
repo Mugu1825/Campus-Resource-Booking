@@ -67,9 +67,6 @@ def create_humanized_report(output_filename="PROJECT_REPORT.pdf"):
     h1 = ParagraphStyle(
         'H1', fontName='Helvetica-Bold', fontSize=12, leading=16, textColor=primary, spaceBefore=10, spaceAfter=4, keepWithNext=True
     )
-    h2 = ParagraphStyle(
-        'H2', fontName='Helvetica-Bold', fontSize=10, leading=13, textColor=dark, spaceBefore=7, spaceAfter=3, keepWithNext=True
-    )
     p = ParagraphStyle(
         'Body', fontName='Helvetica', fontSize=9, leading=13, textColor=dark, spaceAfter=5
     )
@@ -109,7 +106,7 @@ def create_humanized_report(output_filename="PROJECT_REPORT.pdf"):
     story.append(t_info)
     story.append(Spacer(1, 8))
 
-    # 1. Why I Built This
+    # 1. Motivation
     story.append(Paragraph("1. Project Motivation & Problem Statement", h1))
     story.append(Paragraph(
         "In our college, booking shared facilities—like computer labs, seminar halls, projectors, or the auditorium—is still handled through physical registers or informal messages. This causes frequent scheduling clashes, confusion over who approved what, and no easy way to check if a lab is free for an upcoming slot.",
@@ -120,7 +117,7 @@ def create_humanized_report(output_filename="PROJECT_REPORT.pdf"):
         p
     ))
 
-    # 2. How the System Works (Roles & Flow)
+    # 2. Roles & Workflow
     story.append(Paragraph("2. User Roles & Workflow", h1))
     
     roles_data = [
@@ -199,7 +196,7 @@ def create_humanized_report(output_filename="PROJECT_REPORT.pdf"):
     story.append(t_db)
     story.append(Spacer(1, 8))
 
-    # 5. Key Features & Implementation Details
+    # 5. Key Features
     story.append(Paragraph("5. Key Features & Logic Implemented", h1))
     story.append(Paragraph(
         "<b>A. Roll Number Format Verification:</b><br/>"
@@ -222,7 +219,7 @@ def create_humanized_report(output_filename="PROJECT_REPORT.pdf"):
         p
     ))
 
-    # 6. Challenges Faced and How I Solved Them
+    # 6. Challenges Faced & Solutions
     story.append(Paragraph("6. Challenges Faced & Solutions", h1))
     story.append(Paragraph(
         "• <b>CORS & Port Configuration in Deployment:</b> Initially, running frontend and backend as separate Render services created cross-origin errors and needed two separate URLs. I resolved this by writing a custom Dockerfile with Nginx serving the static frontend and reverse-proxying <code>/api/*</code> to Gunicorn. This gave a unified single-URL deployment with zero CORS issues.<br/>"
@@ -231,29 +228,15 @@ def create_humanized_report(output_filename="PROJECT_REPORT.pdf"):
         p
     ))
 
-    # 7. Testing & Verification Summary
-    story.append(Paragraph("7. Testing & Verification Summary", h1))
-    story.append(Paragraph(
-        "To make sure the entire project works reliably, I wrote an automated test script (<code>backend/tests/verify_codebase.py</code>) that runs <b>31 integration test cases</b> covering:<br/>"
-        "1. Public endpoints (Health check, department list)<br/>"
-        "2. Roll number validation (Rejecting invalid codes, auto-extracting department)<br/>"
-        "3. Staff approval lifecycle (Pending state $\\rightarrow$ Login blocked $\\rightarrow$ Admin approval $\\rightarrow$ Login success)<br/>"
-        "4. Resource security (Staff blocked from creating premium resources)<br/>"
-        "5. Booking rules (4-hour limit enforcement, double-booking rejection, hackathon rules)<br/>"
-        "6. Student self-cancellation (Pending cancel allowed, approved cancel blocked)<br/>"
-        "<b>Result: 31 / 31 tests passed (100% success rate).</b>",
-        p
-    ))
-
-    # 8. What I Learned & Conclusion
-    story.append(Paragraph("8. Conclusion & What I Learned", h1))
+    # 7. Conclusion & Learning
+    story.append(Paragraph("7. Conclusion & What I Learned", h1))
     story.append(Paragraph(
         "Working on this project gave me practical, hands-on experience building a real-world web system from start to finish. I learned how to structure REST APIs with Flask blueprints, model relational concepts inside MongoDB, write clean vanilla JavaScript for interactive UI elements, containerize applications using Docker and Nginx, and deploy production code to the cloud.",
         p
     ))
 
     doc.build(story, canvasmaker=NumberedCanvas)
-    print(f"Humanized report compiled into: {output_filename}")
+    print(f"Report compiled successfully into: {output_filename}")
 
 if __name__ == '__main__':
     create_humanized_report()
