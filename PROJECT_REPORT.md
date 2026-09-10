@@ -1,249 +1,118 @@
-# Project Report: Campus Resource Booking System (CRBS)
-
-**Author:** Mugunth  
-**System Version:** 1.0.0 (Production Release)  
-**Live Production URL:** [https://campus-resource-booking-cqt7.onrender.com](https://campus-resource-booking-cqt7.onrender.com)  
+# Campus Resource Booking System (CRBS)
+**Project Report | Full-Stack Web Development**  
+**Author:** Mugunth (Computer Science & Engineering)  
+**Live Application:** [https://campus-resource-booking-cqt7.onrender.com](https://campus-resource-booking-cqt7.onrender.com)  
 **GitHub Repository:** [https://github.com/Mugu1825/Campus-Resource-Booking](https://github.com/Mugu1825/Campus-Resource-Booking)  
-**Technology Stack:** Python (Flask, Gunicorn), MongoDB Atlas, HTML5 / Modern CSS / Vanilla JavaScript, Nginx, Docker, Render Cloud
 
 ---
 
-## 1. Executive Summary & Abstract
+## 1. Project Overview & Motivation
 
-Traditional university campus resource management—covering computer labs, research equipment, seminar halls, and auditoriums—frequently relies on manual paper logs, informal email requests, or basic spreadsheets. These legacy workflows lead to major inefficiencies:
-- **Double Booking & Scheduling Conflicts:** Overlapping time requests without real-time synchronization.
-- **Unverified Access & Inaccurate Categorization:** Lack of structural enforcement on student departments and academic identities.
-- **Administrative Bottlenecks:** A single administrator overwhelmed by routine classroom bookings, or lack of oversight when high-value research gear is reserved.
-- **Hackathon & Extended Event Disruption:** Inability to differentiate between a 1-hour student study session and a 48-hour multi-day departmental hackathon.
+In our college, reserving shared facilities—like computer labs, seminar halls, projectors, or the auditorium—is still handled manually using paper registers or informal messages. This causes frequent scheduling clashes, confusion over who approved what, and no real-time way for students to know if a lab is free.
 
-The **Campus Resource Booking System (CRBS)** is a containerized, production-deployed web application designed to automate campus scheduling. It introduces a **3-tier role-based access control (RBAC)** architecture (*Student*, *Staff*, *Admin*), automated student department parsing, dynamic hourly slot availability calculation, double-booking prevention algorithms, and a multi-tier approval pipeline.
-
----
-
-## 2. Project Objectives & Scope
-
-1. **Automated Academic Identity Verification:** Validate student register numbers against institutional format standards (`YY` + 3-character department code + 4 digits, e.g., `25CSE1011`) and automatically extract departmental affiliations without manual user input.
-2. **Multi-Tier Role Governance:**
-   - **Student:** Self-service registration, live resource browsing, slot availability inspection, booking submission, and self-cancellation of pending requests.
-   - **Staff:** Departmental oversight with mandatory admin approval before activation; ability to manage standard resources and approve standard bookings.
-   - **Admin:** Master overseer managing staff activations, global user roles, all resource tiers, and exclusive approval authority over premium resources and multi-day hackathons.
-3. **Resource Categorization & Time Constraints:**
-   - **Standard Resources:** Labs, classrooms, and seminar rooms approved by staff or admin. Regular bookings capped at **4 hours** on a single day.
-   - **Premium Resources:** High-performance compute clusters and central auditoriums requiring **Admin-only** approval.
-   - **Hackathon Bookings:** Multi-day bookings permitted up to **48 hours**, requiring verified event names and Admin-only sign-off.
-4. **DevOps & Cloud-Native Deployment:** Single-container Docker packaging utilizing Nginx as a reverse proxy and static file server, routing to a Gunicorn-powered Flask WSGI backend, deployed on Render with an active MongoDB Atlas cluster.
+I built the **Campus Resource Booking System (CRBS)** to solve this problem with a clean, fully functional web app. Rather than building a basic CRUD application with just one generic user type, I designed it around real campus requirements:
+- **3 distinct user roles:** Student, Staff, and Admin.
+- **Automatic department detection** from college register numbers.
+- **Real-time hourly slot checking** so students see what's free before booking.
+- **Automatic conflict prevention** to stop double bookings before they happen.
+- **Special rules for events** like 48-hour hackathons vs regular study sessions.
 
 ---
 
-## 3. System Architecture & Containerization
+## 2. User Roles & Workflow
 
-CRBS implements a unified **single-container micro-architecture** that eliminates Cross-Origin Resource Sharing (CORS) complications and optimizes cloud hosting costs.
-
-```mermaid
-graph TD
-    Client["Client Browser (Desktop / Mobile)"]
-    
-    subgraph "Docker Container (Render Cloud Web Service)"
-        Nginx["Nginx Reverse Proxy (:80 or $PORT)"]
-        Frontend["Frontend Static Engine<br/>(/usr/share/nginx/html)<br/>HTML5, CSS3, Vanilla JS"]
-        Gunicorn["WSGI Server (Gunicorn :5000)<br/>2 Workers, 2 Threads"]
-        Flask["Flask Application Engine<br/>REST API Blueprints"]
-    end
-    
-    Atlas[("MongoDB Atlas Cloud<br/>ReplicaSet (TLS Encrypted)")]
-
-    Client -->|"HTTP/HTTPS Request"| Nginx
-    Nginx -->|"Static Routes (/*, /css/*, /js/*)"| Frontend
-    Nginx -->|"API Routes (/api/*)"| Gunicorn
-    Gunicorn --> Flask
-    Flask -->|"PyMongo Driver"| Atlas
-```
-
-### Key Architectural Advantages
-- **Unified Domain Routing:** Both frontend pages and `/api/*` endpoints are exposed through the same host and port. This guarantees zero CORS pre-flight delays and simplifies client-side code.
-- **Dynamic Port Adaptation:** The entrypoint startup script dynamically evaluates Render's injected `$PORT` environment variable (defaulting to port 80 locally) and injects it into the Nginx configuration at boot.
-- **Independent Failure Isolation:** Gunicorn runs on loopback (`127.0.0.1:5000`), shielded from direct external internet exposure by Nginx.
+| Role | How It Works in the App | Key Permissions & Rules |
+|---|---|---|
+| **Student** | Self-registers using their college roll number (e.g. `25CSE1011`). The app checks the format and automatically extracts their department. Students can browse resources, check hourly slot availability, submit booking requests, and cancel pending requests. | • Regular bookings: max 4 hours (same-day)<br/>• Hackathon bookings: up to 48 hours<br/>• Can only cancel their own pending requests |
+| **Staff** | Registers with their department. Their account is set to `pending` until the Admin approves it. Once active, staff can manage standard labs/rooms and approve student bookings for their department. | • Can approve standard resources<br/>• *Cannot* create or approve premium halls or hackathons (preventing misuse) |
+| **Admin** | Superuser account. Reviews and approves new staff registrations, manages all resources (both standard and premium), approves multi-day hackathons and high-value spaces (like the main auditorium), and can promote or change user roles. | • Full system authority<br/>• Exclusive approval for premium & hackathons<br/>• Monitors live stats and user accounts |
 
 ---
 
-## 4. Database Architecture & Data Models
+## 3. Technology Choices & Architecture
 
-CRBS uses **MongoDB Atlas**, taking advantage of flexible document schemas, native high availability through replica sets, and query indexing.
-
-### Entity-Relationship Diagram (ERD)
-
-```mermaid
-erDiagram
-    USERS ||--o{ BOOKINGS : "submits"
-    RESOURCES ||--o{ BOOKINGS : "is reserved for"
-    USERS ||--o{ RESOURCES : "administers"
-
-    USERS {
-        ObjectId _id PK
-        string name
-        string email UK
-        string password "bcrypt hash"
-        string role "student | staff | admin"
-        string account_status "active | pending | rejected"
-        string register_no "nullable, sparse UK"
-        string department "3-char code (e.g. CSE, ECE)"
-        date created_at
-    }
-
-    RESOURCES {
-        ObjectId _id PK
-        string name
-        string type "lab | room | equipment | auditorium"
-        string tier "standard | premium"
-        string location
-        int capacity
-        bool is_available
-        date created_at
-    }
-
-    BOOKINGS {
-        ObjectId _id PK
-        ObjectId user_id FK
-        ObjectId resource_id FK
-        string date_start "YYYY-MM-DD"
-        string date_end "YYYY-MM-DD"
-        string start_slot "HH:MM (e.g. 10:00)"
-        string end_slot "HH:MM (e.g. 14:00)"
-        bool is_hackathon
-        string hackathon_event "nullable"
-        string status "pending | approved | rejected | cancelled"
-        string approved_by "nullable FK"
-        date created_at
-    }
-```
-
-### Indexing Strategy
-To guarantee performance under high concurrency:
-1. `users.email` (Unique Index) — Guarantees zero duplicate account registrations.
-2. `users.register_no` (Unique, Sparse Index) — Ensures one student registration per academic roll number while allowing staff/admin accounts without roll numbers.
-3. `resources.tier` & `resources.is_available` — Optimizes filtering queries when users browse available spaces.
-4. `bookings.resource_id + bookings.date_start + bookings.date_end` (Compound Index) — Enables high-speed conflict detection when calculating available time intervals.
+- **Backend (Python & Flask):** I chose Flask because it is lightweight, fast to get running, and keeps REST API routes clean and organized using blueprints. Password security uses `flask-bcrypt` for salted hashing, and authentication uses stateless `flask-jwt-extended` tokens.
+- **Database (MongoDB Atlas):** College resources and bookings naturally map to JSON documents. Using MongoDB Atlas gives a reliable cloud database with built-in TLS encryption and connection pooling.
+- **Frontend (HTML5, Modern CSS, Vanilla JavaScript):** I intentionally avoided bulky frameworks like React to keep the site fast, clean, and dependency-free. Modular JS files and a custom responsive CSS design system handle the UI.
+- **Containerization (Docker & Nginx):** I packaged the frontend and backend together into a single Docker container. Nginx serves the static HTML/CSS/JS and acts as a reverse proxy forwarding `/api/*` requests to Gunicorn. This eliminated all CORS headaches and allowed hosting everything on Render's free tier under one unified URL.
 
 ---
 
-## 5. Security & Authentication Model
+## 4. Database Design (Collections)
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User as Client
-    participant FE as Frontend (Vanilla JS)
-    participant API as Backend Auth API
-    participant DB as MongoDB Atlas
+### `users`
+Stores all user profiles.
+- `name`, `email` (unique index, case-insensitive)
+- `password` (bcrypt salted hash, never stored in plain text)
+- `role` (`student`, `staff`, or `admin`)
+- `account_status` (`active`, `pending`, or `rejected`)
+- `register_no` (unique sparse index, format: `25CSE1011`)
+- `department` (e.g. `CSE`, `ECE`, `MEE`)
 
-    User->>FE: Enters email and password
-    FE->>API: POST /api/auth/login
-    API->>DB: Find user by email (case-insensitive)
-    DB-->>API: User Document
-    API->>API: Verify bcrypt password hash
-    alt Account is Pending
-        API-->>FE: 403 Forbidden ("Awaiting Admin Approval")
-    else Password Match & Active
-        API->>API: Generate signed JWT (8-hr validity)
-        API-->>FE: 200 OK (Token + Role + User Info)
-        FE->>FE: Store Token in localStorage (crbs_token)
-        FE->>User: Redirect based on role (Dashboard / Staff / Admin)
-    end
-```
+### `resources`
+Stores campus facilities.
+- `name` (e.g. "Computing Lab 1 (AI / ML)", "Dr. APJ Abdul Kalam Auditorium")
+- `type` (`lab`, `room`, `equipment`, `auditorium`)
+- `tier` (`standard` managed by staff, or `premium` managed by admin)
+- `location`, `capacity`
+- `is_available` (boolean toggle switch for maintenance)
 
-### Security Safeguards
-- **Bcrypt Salted Hashing:** Passwords are never stored in plaintext. They are salted and hashed using `Flask-Bcrypt`.
-- **JWT Identity & Claims:** Access tokens encapsulate the user ID as subject, with role and status stored in cryptographically signed claims.
-- **Python Function Decorators:**
-  - `@login_required()`: Verifies token validity and checks for `active` account status.
-  - `@staff_required()`: Enforces that the caller holds either `staff` or `admin` status.
-  - `@admin_required()`: Restricts endpoint execution strictly to the system `admin`.
+### `bookings`
+Stores reservation records.
+- `user_id` (references student)
+- `resource_id` (references facility)
+- `date_start`, `date_end`
+- `start_slot`, `end_slot` (e.g. `10:00` to `12:00`)
+- `is_hackathon` (boolean) & `hackathon_event` (event title)
+- `status` (`pending`, `approved`, `rejected`, `cancelled`)
+- `approved_by` (ID of approving staff or admin)
 
 ---
 
-## 6. Business Logic & Conflict Prevention Engine
+## 5. Key Features & Business Logic
 
-### Double-Booking Prevention Algorithm
-When a booking is submitted:
-1. Query active bookings where `status IN ['pending', 'approved']` for the target resource.
-2. **Date Interval Overlap Check:**
-   $$\text{Booking}_{\text{start}} \le \text{Existing}_{\text{end}} \quad \text{AND} \quad \text{Booking}_{\text{end}} \ge \text{Existing}_{\text{start}}$$
-3. **Slot Interval Overlap Check (Single-Day):**
-   If both bookings share the same date, indices within the fixed operational array `['09:00', '10:00', ..., '21:00']` are compared:
-   $$\text{SlotIndex}_{\text{start}} < \text{ExistingIndex}_{\text{end}} \quad \text{AND} \quad \text{SlotIndex}_{\text{end}} > \text{ExistingIndex}_{\text{start}}$$
-4. **Hackathon Preemption:** If either reservation is marked as a multi-day hackathon, all slots across the reserved date range are locked.
+### A. Register Number Format Validation
+Students must register with a valid college roll number format: 2-digit year + 3-character department code + 4 digits (e.g. `25CSE1011`). The app uses regex validation (`^\d{2}(CSE|ECE|EEE|MEE|INT|CIV|CHE|AER|BIO|MBA|MCA)\d{4}$`) on both client and server, and automatically parses the department without asking the student to re-enter it.
 
----
+### B. Double-Booking Conflict Engine
+Before creating any booking, the backend queries active reservations on that resource (`pending` or `approved`). If dates overlap, it compares slot indices from `09:00` to `21:00`. If any slot collides, the request is blocked immediately with a clear error message.
 
-## 7. Complete REST API Specification
+### C. Live Slot Availability Grid
+When a student clicks "Check Availability" on any resource card, an interactive modal shows the full slot schedule for the selected date. Free slots appear in green outline, booked slots appear in red, and selected slots highlight in blue. Clicking "Book this slot" auto-fills the booking form.
 
-### Authentication & Identification (`/api/auth`)
-| Method | Endpoint | Access Level | Description |
-|---|---|---|---|
-| `POST` | `/api/auth/register/student` | Public | Registers student with format validation and auto department parsing |
-| `POST` | `/api/auth/register/staff` | Public | Registers staff account with `account_status: pending` |
-| `POST` | `/api/auth/login` | Public | Authenticates credentials and returns JWT bearer token |
-| `GET` | `/api/auth/departments` | Public | Returns list of valid 3-letter department codes |
-
-### Resource Management (`/api/resources`)
-| Method | Endpoint | Access Level | Description |
-|---|---|---|---|
-| `GET` | `/api/resources/` | Public | Lists all campus resources (supports filter by type and tier) |
-| `GET` | `/api/resources/<id>` | Public | Returns details of a specific resource |
-| `GET` | `/api/resources/<id>/availability` | Public | Returns array of booked and available slots for a given date |
-| `POST` | `/api/resources/` | Staff / Admin | Creates resource (Staff limited strictly to standard tier) |
-| `PUT` | `/api/resources/<id>` | Staff / Admin | Updates resource attributes |
-| `PATCH`| `/api/resources/<id>/availability` | Staff / Admin | Toggles resource availability flag (`is_available`) |
-| `DELETE`| `/api/resources/<id>` | Staff / Admin | Deletes resource (blocked if active bookings exist) |
-
-### Booking Lifecycle (`/api/bookings`)
-| Method | Endpoint | Access Level | Description |
-|---|---|---|---|
-| `GET` | `/api/bookings/` | Authenticated | Role-aware: Students see own; Staff see standard; Admin see all |
-| `GET` | `/api/bookings/my` | Student | Returns authenticated student's reservation history |
-| `POST` | `/api/bookings/` | Student | Submits new booking request with conflict verification |
-| `PUT/PATCH` | `/api/bookings/<id>/approve` | Staff / Admin | Approves booking (Staff blocked on premium/hackathons) |
-| `PUT/PATCH` | `/api/bookings/<id>/reject` | Staff / Admin | Rejects booking |
-| `PATCH`| `/api/bookings/<id>/cancel` | Student / Admin | Cancels pending booking |
-
-### Administration & Governance (`/api/admin`)
-| Method | Endpoint | Access Level | Description |
-|---|---|---|---|
-| `GET` | `/api/admin/stats` | Admin | Real-time counts of users, resources, bookings, and pending staff |
-| `GET` | `/api/admin/users` | Admin | Lists all user accounts (passwords omitted) |
-| `GET` | `/api/admin/pending-staff` | Admin | Retrieves list of staff accounts awaiting approval |
-| `PATCH`| `/api/admin/staff/<id>/approve` | Admin | Activates staff account |
-| `PATCH`| `/api/admin/staff/<id>/reject` | Admin | Rejects staff registration |
-| `PATCH`| `/api/admin/users/<id>/role` | Admin | Modifies user permissions (`student`, `staff`, `admin`) |
+### D. Dual Ruleset (Regular vs. Hackathon)
+- **Regular Bookings:** Max 4 hours, same-day only.
+- **Hackathon Bookings:** Multi-day blocks allowed up to 48 hours. Requires an event name, and routes exclusively to Admin for sign-off.
 
 ---
 
-## 8. Verification & Quality Assurance Report
+## 6. Challenges Faced & Solutions
 
-An automated test suite (`tests/verify_codebase.py`) was executed to evaluate all functional criteria prior to deployment.
-
-```text
-======================================================================
-📊 AUTOMATED VERIFICATION AUDIT SUMMARY: 31 PASSED | 0 FAILED
-======================================================================
-[1] Health Check & Public Routes          -> 2 / 2 PASSED (100%)
-[2] Register Number Validation            -> 4 / 4 PASSED (100%)
-[3] Staff Registration & Approval Flow   -> 6 / 6 PASSED (100%)
-[4] Resource Tiering & Security Guards    -> 3 / 3 PASSED (100%)
-[5] Booking Engine & Overlap Prevention   -> 7 / 7 PASSED (100%)
-[6] Approval Permissions & Gating         -> 5 / 5 PASSED (100%)
-[7] Student Self-Service Cancellation    -> 2 / 2 PASSED (100%)
-[8] Dynamic Availability Endpoint         -> 1 / 1 PASSED (100%)
-[9] Admin Overview Stats Aggregation     -> 1 / 1 PASSED (100%)
-```
+1. **CORS & Multiple Domains:** Running frontend and backend on separate Render services caused cross-origin blocking and required managing two separate URLs. I resolved this by writing a custom Docker container with Nginx as a reverse proxy, serving the frontend and proxying `/api/*` to Gunicorn under one single domain.
+2. **MongoDB Cold Boot Connection:** Calling index creation on application startup caused crashes during cold starts when Atlas took a few seconds to connect. I moved index creation into a one-shot `@app.before_request` hook so the server boots cleanly without errors.
+3. **Role Gating & Security:** To prevent staff from approving high-value facilities or overriding multi-day events, I wrote custom Flask decorators (`@staff_required` and `@admin_required`) that inspect the JWT token claims before any route executes.
 
 ---
 
-## 9. Conclusion & Future Enhancements
+## 7. Testing & Verification
 
-The **Campus Resource Booking System** is fully operational and verified. It replaces manual reservation workflows with an automated, role-governed web application. The single-container Docker architecture ensures that deployment to Render remains lightweight, reliable, and cost-free.
+I wrote an automated verification suite (`backend/tests/verify_codebase.py`) that tests all 31 core scenarios against the live database:
+- ✅ Public health check & department list
+- ✅ Register number regex validation & department extraction
+- ✅ Staff approval lifecycle (pending gate $\rightarrow$ admin approval $\rightarrow$ login)
+- ✅ Resource tier restrictions (staff cannot create premium)
+- ✅ Booking rules (4-hour regular limit, 48-hour hackathon, conflict detection)
+- ✅ Hierarchical approvals (staff blocked on premium/hackathons)
+- ✅ Student self-cancellation rules
+- **Result: 31 / 31 tests passed (100% success rate).**
 
-### Future Roadmap
-1. **Automated Notification Dispatcher:** Integration of transactional email or SMS alerts (via SendGrid / Twilio) to notify students instantly upon booking approval or rejection.
-2. **Hardware IoT Smart Lock Integration:** Generating temporary dynamic QR codes or RFID credentials synced with approved booking windows to unlock laboratory doors physically.
-3. **Calendar Integration:** Exporting approved reservations directly to Google Calendar or Microsoft Outlook via `.ics` feeds.
+---
+
+## 8. Conclusion & What I Learned
+
+Building this project gave me practical experience taking a full-stack web application from idea to production:
+- Structuring RESTful APIs with Flask blueprints.
+- Designing document schemas and indexes in MongoDB Atlas.
+- Writing clean, framework-free JavaScript for interactive UI elements.
+- Packaging multi-tier services using Docker and Nginx.
+- Deploying and monitoring a live web application on Render.
