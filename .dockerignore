@@ -1,0 +1,12 @@
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.Python
+backend/venv/
+backend/.env
+.git/
+.gitignore
+.DS_Store
+postman/
+tests/

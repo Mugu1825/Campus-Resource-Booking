@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Staff Dashboard - CRBS</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="dashboard-layout">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>CRBS Staff</h2>
+        <div id="user-info" class="muted mt-4" style="font-size: 0.875rem;"></div>
+      </div>
+      <ul class="sidebar-nav">
+        <li><a href="#" data-target="queue-sec" class="active">Booking Queue</a></li>
+        <li><a href="#" data-target="resources-sec">Manage Resources</a></li>
+        <li><a href="#" id="logout-btn">Logout</a></li>
+      </ul>
+    </div>
+    
+    <div class="main-content">
+      
+      <!-- Booking Queue -->
+      <div id="queue-sec" class="section active">
+        <h2 class="mb-4">Booking Queue (Standard Resources)</h2>
+        <div id="queue-alert"></div>
+        <div class="mb-4">
+          <select id="queue-filter" class="form-control" style="width: 200px;">
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+            <option value="">All</option>
+          </select>
+        </div>
+        <div class="table-responsive">
+          <table class="table" id="queue-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Resource</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Manage Resources -->
+      <div id="resources-sec" class="section">
+        <div class="flex justify-between items-center mb-4">
+          <h2>Manage Resources</h2>
+          <button class="btn btn-primary" id="add-res-btn">Add Resource</button>
+        </div>
+        <div id="res-alert"></div>
+        <div class="table-responsive">
+          <table class="table" id="res-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Location</th>
+                <th>Capacity</th>
+                <th>Available</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- Resource Modal -->
+  <div class="modal-overlay" id="res-modal">
+    <div class="modal">
+      <button class="modal-close">&times;</button>
+      <h3 id="res-modal-title" class="mb-4">Add Resource</h3>
+      <form id="res-form">
+        <input type="hidden" id="res-id">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="res-name" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select id="res-type" class="form-control" required>
+            <option value="Lab">Lab</option>
+            <option value="Room">Room</option>
+            <option value="Equipment">Equipment</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Location</label>
+          <input type="text" id="res-location" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>Capacity</label>
+          <input type="number" id="res-capacity" class="form-control" required min="1">
+        </div>
+        <div class="form-group">
+          <label>Available</label>
+          <input type="checkbox" id="res-available" checked>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block mt-4" id="res-submit-btn">Save Resource</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/staff.js"></script>
+</body>
+</html>

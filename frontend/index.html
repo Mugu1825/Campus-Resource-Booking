@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Campus Resource Booking System</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">CRBS</div>
+    <div class="nav-links">
+      <a href="login.html" class="btn btn-outline">Login</a>
+      <a href="register-student.html" class="btn btn-primary">Student Register</a>
+      <a href="register-staff.html" class="btn btn-primary">Staff Register</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <h1>Campus Resource Booking System</h1>
+    <p>Book labs, rooms, equipment, and auditoriums with ease.</p>
+    <div>
+      <a href="login.html" class="btn btn-primary">Login Now</a>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="card text-center">
+      <h3>Book Resources</h3>
+      <p>Easily check availability and book resources you need for your projects and events.</p>
+    </div>
+    <div class="card text-center">
+      <h3>Manage Bookings</h3>
+      <p>View your past and upcoming bookings, and cancel them if your plans change.</p>
+    </div>
+    <div class="card text-center">
+      <h3>Admin Control</h3>
+      <p>Staff and Admins have full control to approve, reject, and manage resources efficiently.</p>
+    </div>
+  </section>
+
+  <script src="js/api.js"></script>
+  <script>
+    if (getToken()) {
+      const role = getRole();
+      if (role === 'student') window.location.href = 'dashboard.html';
+      else if (role === 'staff') window.location.href = 'staff.html';
+      else if (role === 'admin') window.location.href = 'admin.html';
+    }
+  </script>
+</body>
+</html>

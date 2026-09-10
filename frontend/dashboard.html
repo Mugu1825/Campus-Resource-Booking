@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Dashboard - CRBS</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="dashboard-layout">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>CRBS</h2>
+        <div id="user-info" class="muted mt-4" style="font-size: 0.875rem;"></div>
+      </div>
+      <ul class="sidebar-nav">
+        <li><a href="#" data-target="browse-sec" class="active">Browse Resources</a></li>
+        <li><a href="#" data-target="bookings-sec">My Bookings</a></li>
+        <li><a href="#" data-target="new-booking-sec">New Booking</a></li>
+        <li><a href="#" id="logout-btn">Logout</a></li>
+      </ul>
+    </div>
+    
+    <div class="main-content">
+      <!-- Browse Resources -->
+      <div id="browse-sec" class="section active">
+        <h2 class="mb-4">Browse Resources</h2>
+        <div class="flex gap-2 mb-4">
+          <select id="filter-type" class="form-control" style="width: 200px;">
+            <option value="">All Types</option>
+            <option value="Lab">Lab</option>
+            <option value="Room">Room</option>
+            <option value="Equipment">Equipment</option>
+            <option value="Auditorium">Auditorium</option>
+          </select>
+          <select id="filter-tier" class="form-control" style="width: 200px;">
+            <option value="">All Tiers</option>
+            <option value="standard">Standard</option>
+            <option value="premium">Premium</option>
+          </select>
+        </div>
+        <div id="resource-grid" class="resource-grid">
+          <div class="spinner"></div> Loading...
+        </div>
+      </div>
+      
+      <!-- My Bookings -->
+      <div id="bookings-sec" class="section">
+        <h2 class="mb-4">My Bookings</h2>
+        <div id="my-bookings-alert"></div>
+        <div class="table-responsive">
+          <table class="table" id="my-bookings-table">
+            <thead>
+              <tr>
+                <th>Resource</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- New Booking -->
+      <div id="new-booking-sec" class="section">
+        <h2 class="mb-4">New Booking</h2>
+        <div id="new-booking-alert"></div>
+        <div class="card" style="max-width: 600px;">
+          <form id="new-booking-form">
+            <div class="form-group">
+              <label>Resource</label>
+              <select id="nb-resource" class="form-control" required></select>
+            </div>
+            
+            <div class="form-group">
+              <label>Hackathon / Multi-day Event?</label>
+              <input type="checkbox" id="nb-hackathon"> Yes
+            </div>
+            
+            <div class="form-group" id="nb-event-group" style="display:none;">
+              <label>Event Name</label>
+              <input type="text" id="nb-event-name" class="form-control">
+            </div>
+            
+            <div class="flex gap-2">
+              <div class="form-group" style="flex:1;">
+                <label>Start Date</label>
+                <input type="date" id="nb-start-date" class="form-control" required>
+              </div>
+              <div class="form-group" style="flex:1;">
+                <label>End Date</label>
+                <input type="date" id="nb-end-date" class="form-control" required>
+              </div>
+            </div>
+            
+            <div class="flex gap-2">
+              <div class="form-group" style="flex:1;">
+                <label>Start Slot</label>
+                <select id="nb-start-slot" class="form-control" required></select>
+              </div>
+              <div class="form-group" style="flex:1;">
+                <label>End Slot</label>
+                <select id="nb-end-slot" class="form-control" required></select>
+              </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" id="nb-submit-btn">Submit Booking</button>
+          </form>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- Availability Checker Modal -->
+  <div class="modal-overlay" id="avail-modal">
+    <div class="modal">
+      <button class="modal-close">&times;</button>
+      <h3 id="avail-resource-name" class="mb-4">Resource Name</h3>
+      <div class="form-group">
+        <label>Select Date</label>
+        <input type="date" id="avail-date" class="form-control">
+      </div>
+      <div id="avail-loading" style="display:none;"><div class="spinner"></div></div>
+      <div class="slot-grid" id="avail-slots"></div>
+      <button class="btn btn-primary btn-block mt-4" id="avail-book-btn" style="display:none;">Book Selected Slots</button>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

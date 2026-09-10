@@ -1,0 +1,255 @@
+{
+  "info": {
+    "name": "Campus Resource Booking System",
+    "description": "Complete API collection for CRBS. Set the `base_url` variable to your backend URL and `token` after logging in.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:5000/api" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Student",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/register/student",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"name\":\"Arjun Kumar\",\"email\":\"arjun@example.com\",\"password\":\"password123\",\"register_no\":\"25CSE1011\"}" }
+          }
+        },
+        {
+          "name": "Register Staff",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/register/staff",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"name\":\"Priya Singh\",\"email\":\"priya.staff@example.com\",\"password\":\"password123\",\"department\":\"CSE\"}" }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"email\":\"arjun@example.com\",\"password\":\"password123\"}" }
+          }
+        },
+        {
+          "name": "Get Departments",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/auth/departments"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Resources",
+      "item": [
+        {
+          "name": "List Resources",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/resources/", "query": [
+              { "key": "tier", "value": "standard", "disabled": true },
+              { "key": "type", "value": "lab", "disabled": true }
+            ]}
+          }
+        },
+        {
+          "name": "Get Resource",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/resources/RESOURCE_ID_HERE"
+          }
+        },
+        {
+          "name": "Check Availability",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/resources/RESOURCE_ID_HERE/availability?date=2025-10-15", "query": [
+              { "key": "date", "value": "2025-10-15" }
+            ]}
+          }
+        },
+        {
+          "name": "Add Resource (Staff/Admin)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/resources/",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"name\":\"CS Lab 1\",\"type\":\"lab\",\"tier\":\"standard\",\"location\":\"Block A, Room 101\",\"capacity\":40}" }
+          }
+        },
+        {
+          "name": "Add Premium Resource (Admin only)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/resources/",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"name\":\"Main Auditorium\",\"type\":\"auditorium\",\"tier\":\"premium\",\"location\":\"Block C\",\"capacity\":500}" }
+          }
+        },
+        {
+          "name": "Update Resource",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/resources/RESOURCE_ID_HERE",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"capacity\":50}" }
+          }
+        },
+        {
+          "name": "Toggle Availability",
+          "request": {
+            "method": "PATCH",
+            "url": "{{base_url}}/resources/RESOURCE_ID_HERE/toggle",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Delete Resource",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/resources/RESOURCE_ID_HERE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "item": [
+        {
+          "name": "All Bookings (Staff/Admin)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/bookings/?status=pending", "query": [
+              { "key": "status", "value": "pending", "disabled": true }
+            ]},
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "My Bookings (Student)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/bookings/my",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Create Regular Booking (Student)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/bookings/",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"resource_id\":\"RESOURCE_ID_HERE\",\"date_start\":\"2025-10-15\",\"date_end\":\"2025-10-15\",\"start_slot\":\"10:00\",\"end_slot\":\"12:00\",\"is_hackathon\":false}" }
+          }
+        },
+        {
+          "name": "Create Hackathon Booking (Student)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/bookings/",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"resource_id\":\"RESOURCE_ID_HERE\",\"date_start\":\"2025-10-18\",\"date_end\":\"2025-10-19\",\"start_slot\":\"09:00\",\"end_slot\":\"21:00\",\"is_hackathon\":true,\"hackathon_event\":\"HackIndia 2025\"}" }
+          }
+        },
+        {
+          "name": "Approve Booking",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/bookings/BOOKING_ID_HERE/approve",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Reject Booking",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/bookings/BOOKING_ID_HERE/reject",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Cancel Booking (Student)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/bookings/BOOKING_ID_HERE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "List All Users",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/admin/users",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Pending Staff Approvals",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/admin/staff/pending",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Approve Staff",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/admin/staff/USER_ID_HERE/approve",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Reject Staff",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/admin/staff/USER_ID_HERE/reject",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Change User Role",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/admin/users/USER_ID_HERE/role",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"role\":\"staff\"}" }
+          }
+        }
+      ]
+    }
+  ]
+}
