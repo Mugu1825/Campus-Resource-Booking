@@ -33,8 +33,21 @@ def create_app():
     if not db_name or db_name in ('', 'localhost:27017'):
         db_name = 'campus_booking'
 
-    client = MongoClient(raw_uri, serverSelectionTimeoutMS=5000)
-    app.db = client[db_name]
+    try:
+        client = MongoClient(raw_uri, serverSelectionTimeoutMS=5000)
+        app.db = client[db_name]
+    except Exception as e:
+        print(f"Warning: Initial MongoDB connection deferred: {e}")
+        class LazyDB:
+            def __getattr__(self, name):
+                try:
+                    c = MongoClient(raw_uri, serverSelectionTimeoutMS=5000)
+                    real_db = c[db_name]
+                    app.db = real_db
+                    return getattr(real_db, name)
+                except Exception as inner_e:
+                    raise RuntimeError(f"Database connection error: {inner_e}")
+        app.db = LazyDB()
 
     # Defer index creation to first request so the app starts without a live DB
     _state = {'indexes_done': False}
