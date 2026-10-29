@@ -1,6 +1,6 @@
 import os
 import pymongo
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from pymongo import MongoClient
@@ -54,6 +54,8 @@ def create_app():
 
     @app.before_request
     def ensure_indexes():
+        if request.path in ['/api/health', '/api/instance']:
+            return
         if _state['indexes_done']:
             return
         try:
