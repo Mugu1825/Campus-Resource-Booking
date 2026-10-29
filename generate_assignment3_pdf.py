@@ -3,7 +3,7 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable, KeepTogether
+    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable, Image, PageBreak
 )
 from reportlab.pdfgen import canvas
 
@@ -29,118 +29,105 @@ class NumberedCanvas(canvas.Canvas):
         self.setFont("Helvetica", 8)
         self.setFillColor(colors.HexColor("#64748b"))
         if self._pageNumber > 1:
-            self.drawString(50, 802, "BACSE344 - Cloud Infrastructure & Architecture | Digital Assignment 3")
-            self.setStrokeColor(colors.HexColor("#e2e8f0"))
+            self.drawString(48, 804, "BACSE344 - Cloud Infrastructure and Architecture | Digital Assignment 3")
+            self.setStrokeColor(colors.HexColor("#cbd5e1"))
             self.setLineWidth(0.5)
-            self.line(50, 794, 545, 794)
+            self.line(48, 796, 547, 796)
         
-        self.drawString(50, 32, "Mugunth | Campus Resource Booking System | Assignment-3")
-        self.drawRightString(545, 32, f"Page {self._pageNumber} of {page_count}")
-        self.setStrokeColor(colors.HexColor("#e2e8f0"))
+        self.drawString(48, 30, "Mugunth | Campus Resource Booking System | Digital Assignment 3")
+        self.drawRightString(547, 30, f"Page {self._pageNumber} of {page_count}")
+        self.setStrokeColor(colors.HexColor("#cbd5e1"))
         self.setLineWidth(0.5)
-        self.line(50, 44, 545, 44)
+        self.line(48, 42, 547, 42)
         self.restoreState()
 
-def create_assignment3_report(output_filename="ASSIGNMENT_3_REPORT.pdf"):
+def create_full_report(output_filename="ASSIGNMENT_3_REPORT.pdf"):
     doc = SimpleDocTemplate(
         output_filename,
         pagesize=A4,
-        leftMargin=48,
-        rightMargin=48,
-        topMargin=46,
-        bottomMargin=46
+        leftMargin=46,
+        rightMargin=46,
+        topMargin=44,
+        bottomMargin=44
     )
 
-    styles = getSampleStyleSheet()
-    
     primary = colors.HexColor("#1e3a8a")     # Deep academic blue
     secondary = colors.HexColor("#0284c7")   # Bright cyan
     dark = colors.HexColor("#0f172a")        # Text dark
     muted = colors.HexColor("#475569")       # Text muted
     border = colors.HexColor("#cbd5e1")      # Border
-    code_bg = colors.HexColor("#f8fafc")     # Light background
+    img_width = 500
 
-    title_style = ParagraphStyle(
-        'DocTitle', fontName='Helvetica-Bold', fontSize=18, leading=22, textColor=primary, spaceAfter=3
-    )
-    subtitle_style = ParagraphStyle(
-        'DocSub', fontName='Helvetica', fontSize=10, leading=14, textColor=muted, spaceAfter=8
-    )
-    h1 = ParagraphStyle(
-        'H1', fontName='Helvetica-Bold', fontSize=11.5, leading=15, textColor=primary, spaceBefore=8, spaceAfter=4, keepWithNext=True
-    )
-    h2 = ParagraphStyle(
-        'H2', fontName='Helvetica-Bold', fontSize=9.5, leading=13, textColor=dark, spaceBefore=6, spaceAfter=2, keepWithNext=True
-    )
-    p = ParagraphStyle(
-        'Body', fontName='Helvetica', fontSize=8.5, leading=12, textColor=dark, spaceAfter=4
-    )
-    code_block = ParagraphStyle(
-        'Code', fontName='Courier', fontSize=7.2, leading=9.5, textColor=colors.HexColor("#1e293b")
-    )
-    th = ParagraphStyle(
-        'TH', fontName='Helvetica-Bold', fontSize=8, leading=10, textColor=colors.white
-    )
-    td = ParagraphStyle(
-        'TD', fontName='Helvetica', fontSize=7.5, leading=10, textColor=dark
-    )
-    td_b = ParagraphStyle(
-        'TDB', fontName='Helvetica-Bold', fontSize=7.5, leading=10, textColor=dark
-    )
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle('Title', fontName='Helvetica-Bold', fontSize=18, leading=22, textColor=primary, spaceAfter=2)
+    sub_style = ParagraphStyle('Sub', fontName='Helvetica', fontSize=9.5, leading=13, textColor=muted, spaceAfter=6)
+    h1 = ParagraphStyle('H1', fontName='Helvetica-Bold', fontSize=11, leading=14, textColor=primary, spaceBefore=8, spaceAfter=4, keepWithNext=True)
+    h2 = ParagraphStyle('H2', fontName='Helvetica-Bold', fontSize=9.5, leading=12, textColor=dark, spaceBefore=6, spaceAfter=3, keepWithNext=True)
+    p = ParagraphStyle('Body', fontName='Helvetica', fontSize=8, leading=11, textColor=dark, spaceAfter=4)
+    caption = ParagraphStyle('Caption', fontName='Helvetica-Oblique', fontSize=7.5, leading=10, textColor=muted, spaceAfter=6)
+    th = ParagraphStyle('TH', fontName='Helvetica-Bold', fontSize=7.5, leading=9.5, textColor=colors.white)
+    td = ParagraphStyle('TD', fontName='Helvetica', fontSize=7.2, leading=9.5, textColor=dark)
+    td_b = ParagraphStyle('TDB', fontName='Helvetica-Bold', fontSize=7.2, leading=9.5, textColor=dark)
 
     story = []
 
-    # Title Banner
+    # Title & Metadata
     story.append(Paragraph("BACSE344 - Cloud Infrastructure and Architecture", title_style))
-    story.append(Paragraph("Digital Assignment 3: Application Scaling and Security | C1 Slot | Academic Year 2026", subtitle_style))
-    story.append(HRFlowable(width="100%", thickness=1.5, color=primary, spaceAfter=6))
+    story.append(Paragraph("Digital Assignment 3: Application Scaling and Security | C1 Slot | Due: 30/10/2026", sub_style))
+    story.append(HRFlowable(width="100%", thickness=1.5, color=primary, spaceAfter=5))
 
-    # Meta Table
     meta_data = [
-        [Paragraph("Student Name:", td_b), Paragraph("Mugunth", td), Paragraph("Application:", td_b), Paragraph("Campus Resource Booking System", td)],
-        [Paragraph("GitHub Branch:", td_b), Paragraph("<font color='#0284c7'><u>github.com/Mugu1825/.../tree/assignment-3</u></font>", td), Paragraph("Domain:", td_b), Paragraph("Institute / University Scheduling", td)],
-        [Paragraph("Assignment 1 Live:", td_b), Paragraph("<font color='#0284c7'><u>campus-resource-booking-cqt7.onrender.com</u></font>", td), Paragraph("Cloud Database:", td_b), Paragraph("MongoDB Atlas Replica Set (M0)", td)]
+        [Paragraph("Student Name:", td_b), Paragraph("Mugunth", td), Paragraph("Domain / System:", td_b), Paragraph("Campus Resource Booking (CRBS)", td)],
+        [Paragraph("GitHub Branch:", td_b), Paragraph("<font color='#0284c7'><u>github.com/Mugu1825/.../tree/assignment-3</u></font>", td), Paragraph("Hosting (Asgn 1):", td_b), Paragraph("<font color='#0284c7'><u>campus-resource-booking-cqt7.onrender.com</u></font>", td)],
+        [Paragraph("Load Balancer:", td_b), Paragraph("Nginx Load Balancer (:8080) -> 3 Backends", td), Paragraph("Database:", td_b), Paragraph("MongoDB Atlas Cloud Replica Set (M0)", td)]
     ]
-    t_info = Table(meta_data, colWidths=[80, 175, 80, 164])
+    t_info = Table(meta_data, colWidths=[80, 180, 85, 158])
     t_info.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#f1f5f9")),
         ('BOX', (0,0), (-1,-1), 1, border),
         ('INNERGRID', (0,0), (-1,-1), 0.5, border),
-        ('TOPPADDING', (0,0), (-1,-1), 3),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 3),
+        ('TOPPADDING', (0,0), (-1,-1), 2.5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 2.5),
         ('LEFTPADDING', (0,0), (-1,-1), 5),
         ('RIGHTPADDING', (0,0), (-1,-1), 5),
     ]))
     story.append(t_info)
-    story.append(Spacer(1, 6))
+    story.append(Spacer(1, 4))
 
-    # =========================================================================
-    # QUESTION 1: SCALE YOUR APPLICATION
-    # =========================================================================
+    # ================= QUESTION 1 =================
     story.append(Paragraph("QUESTION 1 — SCALE YOUR APPLICATION (5 MARKS)", h1))
-
+    
     # 1(a)
     story.append(Paragraph("1(a) Peak-Demand Situation & 3-Instance Backend behind Nginx Load Balancer (1 Mark)", h2))
     story.append(Paragraph(
-        "<b>Peak-Demand Scenario:</b> In our university domain, peak demand occurs during the <b>'Semester Lab Slot & 48-Hour Hackathon Registration Rush'</b> at 9:00 AM on Monday. Over 1,500 students across 11 departments concurrently hit the booking system to secure computer laboratories (e.g., AI/ML Lab, IoT Lab), seminar halls, and project rooms before slots run out.<br/>"
-        "<b>API Hit Hardest:</b> <code>GET /api/resources/&lt;id&gt;/availability?date=...</code> and <code>GET /api/resources</code>. Each student continuously queries available 1-hour slots (09:00 to 21:00) and multi-day hackathon intervals before submitting.<br/>"
+        "<b>Peak-Demand Scenario:</b> In our university domain, peak demand happens during the <b>'Semester Lab Slot & 48-Hour Hackathon Registration Rush'</b> at 9:00 AM on Monday. Over 1,500 students across 11 departments concurrently access the system to reserve specialized labs (AI/ML Lab, IoT Lab), seminar halls, and project rooms before slots run out.<br/>"
+        "<b>API Hit Hardest:</b> <code>GET /api/resources/&lt;id&gt;/availability?date=...</code> and <code>GET /api/resources</code> as students continuously refresh available 1-hour slots (09:00 to 21:00) and multi-day hackathon blocks.<br/>"
         "<b>Implementation:</b> Deployed 3 backend instances (<code>crbs-backend-1:5001</code>, <code>crbs-backend-2:5002</code>, <code>crbs-backend-3:5003</code>) running Gunicorn behind an Nginx Load Balancer (<code>crbs-nginx-lb:8080</code>) configured with round-robin upstream balancing and connected to MongoDB Atlas.",
         p
     ))
 
-    # Round robin table
-    rr_data = [
-        [Paragraph("Req #", th), Paragraph("Endpoint URL", th), Paragraph("Served by Backend Instance", th), Paragraph("Response Status", th)],
-        [Paragraph("01", td), Paragraph("<code>/api/instance</code>", td), Paragraph("<code>backend-instance-1</code>", td_b), Paragraph("HTTP 200 OK", td)],
-        [Paragraph("02", td), Paragraph("<code>/api/instance</code>", td), Paragraph("<code>backend-instance-2</code>", td_b), Paragraph("HTTP 200 OK", td)],
-        [Paragraph("03", td), Paragraph("<code>/api/instance</code>", td), Paragraph("<code>backend-instance-3</code>", td_b), Paragraph("HTTP 200 OK", td)],
-        [Paragraph("04", td), Paragraph("<code>/api/instance</code>", td), Paragraph("<code>backend-instance-1</code>", td_b), Paragraph("HTTP 200 OK", td)],
-        [Paragraph("05", td), Paragraph("<code>/api/instance</code>", td), Paragraph("<code>backend-instance-2</code>", td_b), Paragraph("HTTP 200 OK", td)],
-        [Paragraph("06", td), Paragraph("<code>/api/instance</code>", td), Paragraph("<code>backend-instance-3</code>", td_b), Paragraph("HTTP 200 OK", td)],
-        [Paragraph("07-12", td), Paragraph("<code>/api/instance</code>", td), Paragraph("Equal Round-Robin Distribution (4 requests each, 33.3%)", td_b), Paragraph("HTTP 200 OK", td)]
+    # Screenshot 1a
+    if os.path.exists("screenshots/1a_load_balancing_distribution.png"):
+        story.append(Image("screenshots/1a_load_balancing_distribution.png", width=img_width, height=190))
+        story.append(Paragraph("Figure 1(a): Terminal output verifying round-robin distribution across backend-instance-1, 2, and 3 (33.3% each).", caption))
+
+    # 1(b)
+    story.append(Paragraph("1(b) Apache Bench Load Testing: 1 Instance vs 3 Instances (1.5 Marks)", h2))
+    story.append(Paragraph(
+        "Using <b>Apache Bench (<code>ab</code>)</b>, I sent <b>1,000 requests</b> with <b>50 concurrent connections</b> to the availability API, first with 1 backend instance, then with 3 backend instances behind the Nginx load balancer:",
+        p
+    ))
+
+    ab_data = [
+        [Paragraph("Performance Metric", th), Paragraph("1 Instance (Baseline)", th), Paragraph("3 Instances (Load Balanced)", th), Paragraph("Improvement / Gain", th)],
+        [Paragraph("Throughput (Requests/sec)", td_b), Paragraph("342.85 req/s", td), Paragraph("<b>918.42 req/s</b>", td), Paragraph("<font color='#16a34a'><b>+167.9% Gain</b></font>", td)],
+        [Paragraph("Mean Latency per Request", td_b), Paragraph("145.83 ms", td), Paragraph("<b>54.44 ms</b>", td), Paragraph("<font color='#16a34a'><b>-62.7% Faster</b></font>", td)],
+        [Paragraph("95th Percentile Response Time", td_b), Paragraph("210.00 ms", td), Paragraph("<b>78.00 ms</b>", td), Paragraph("-62.9% Latency Drop", td)],
+        [Paragraph("99th Percentile Response Time", td_b), Paragraph("340.00 ms", td), Paragraph("<b>112.00 ms</b>", td), Paragraph("-67.1% Latency Drop", td)],
+        [Paragraph("Failed Requests", td_b), Paragraph("0", td), Paragraph("<b>0</b>", td), Paragraph("100% Success Rate", td)]
     ]
-    t_rr = Table(rr_data, colWidths=[40, 130, 219, 110])
-    t_rr.setStyle(TableStyle([
+    t_ab = Table(ab_data, colWidths=[150, 110, 130, 113])
+    t_ab.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), primary),
         ('BOX', (0,0), (-1,-1), 1, border),
         ('INNERGRID', (0,0), (-1,-1), 0.5, border),
@@ -149,222 +136,89 @@ def create_assignment3_report(output_filename="ASSIGNMENT_3_REPORT.pdf"):
         ('LEFTPADDING', (0,0), (-1,-1), 4),
         ('RIGHTPADDING', (0,0), (-1,-1), 4),
     ]))
-    story.append(t_rr)
-    story.append(Spacer(1, 4))
-
-    # 1(b)
-    story.append(Paragraph("1(b) Apache Bench Load Testing: 1 Instance vs 3 Instances (1.5 Marks)", h2))
-    story.append(Paragraph(
-        "Sent <b>1,000 requests</b> with <b>50 concurrent connections</b> (<code>ab -n 1000 -c 50 http://localhost:8080/api/resources</code>) first against 1 instance, then against 3 instances behind Nginx:",
-        p
-    ))
-
-    ab_data = [
-        [Paragraph("Performance Metric", th), Paragraph("1 Instance (Baseline)", th), Paragraph("3 Instances (Load Balanced)", th), Paragraph("Improvement / Delta", th)],
-        [Paragraph("Requests per Second (Throughput)", td_b), Paragraph("342.85 req/s", td), Paragraph("<b>918.42 req/s</b>", td), Paragraph("<font color='#16a34a'><b>+167.9% Throughput Gain</b></font>", td)],
-        [Paragraph("Time per Request (Mean Latency)", td_b), Paragraph("145.83 ms", td), Paragraph("<b>54.44 ms</b>", td), Paragraph("<font color='#16a34a'><b>-62.7% Latency Reduction</b></font>", td)],
-        [Paragraph("95th Percentile Response Time", td_b), Paragraph("210.00 ms", td), Paragraph("<b>78.00 ms</b>", td), Paragraph("-62.9% Faster Response", td)],
-        [Paragraph("99th Percentile Response Time", td_b), Paragraph("340.00 ms", td), Paragraph("<b>112.00 ms</b>", td), Paragraph("-67.1% Faster Response", td)],
-        [Paragraph("Failed Requests", td_b), Paragraph("0", td), Paragraph("<b>0</b>", td), Paragraph("100% Reliability", td)]
-    ]
-    t_ab = Table(ab_data, colWidths=[150, 110, 130, 109])
-    t_ab.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), primary),
-        ('BOX', (0,0), (-1,-1), 1, border),
-        ('INNERGRID', (0,0), (-1,-1), 0.5, border),
-        ('TOPPADDING', (0,0), (-1,-1), 3),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 3),
-        ('LEFTPADDING', (0,0), (-1,-1), 4),
-        ('RIGHTPADDING', (0,0), (-1,-1), 4),
-    ]))
     story.append(t_ab)
-    story.append(Spacer(1, 4))
+    story.append(Spacer(1, 3))
+
+    if os.path.exists("screenshots/1b_apache_bench_comparison.png"):
+        story.append(Image("screenshots/1b_apache_bench_comparison.png", width=img_width, height=135))
+        story.append(Paragraph("Figure 1(b): Apache Bench benchmark comparison table showing +167.9% throughput increase and -62.7% latency reduction.", caption))
 
     # 1(c)
-    story.append(Paragraph("1(c) Failover Resilience & Zero-Downtime Verification (1.5 Marks)", h2))
+    story.append(Paragraph("1(c) Failover Resilience & Zero-Downtime Configuration (1.5 Marks)", h2))
     story.append(Paragraph(
-        "<b>Scenario:</b> While the 1,000-request load test was actively running, <code>backend-2</code> was abruptly stopped (<code>docker stop crbs-backend-2</code>).<br/>"
-        "• <i>Before Failover Config:</i> Nginx continued forwarding 1/3 of traffic to the dead container, causing <b>47 failed requests (HTTP 502 Bad Gateway)</b>.<br/>"
-        "• <i>After Failover Config:</i> Configured Nginx with <code>proxy_next_upstream error timeout http_502 http_503; proxy_next_upstream_tries 3; proxy_connect_timeout 1s;</code>. When <code>backend-2</code> died, Nginx instantly retried on <code>backend-1</code> or <code>backend-3</code>, resulting in <b>0 failed requests</b>.",
+        "<b>Test:</b> Stopped <code>crbs-backend-2</code> abruptly during an active 1,000-request load test.<br/>"
+        "• <b>Before:</b> Without retry configuration, Nginx returned <b>47 failed requests (HTTP 502 Bad Gateway)</b>.<br/>"
+        "• <b>After:</b> Added <code>proxy_next_upstream error timeout http_502 http_503; proxy_next_upstream_tries 3; proxy_connect_timeout 1s;</code>. Nginx instantly redirected traffic to <code>backend-1</code> or <code>backend-3</code>, resulting in <b>0 failed requests (100% uptime)</b>.",
         p
     ))
 
-    fail_data = [
-        [Paragraph("Nginx Configuration State", th), Paragraph("Total Requests", th), Paragraph("Failed Requests (502)", th), Paragraph("Success Rate", th)],
-        [Paragraph("Before (Standard Nginx, No Retries)", td_b), Paragraph("1,000", td), Paragraph("<font color='#dc2626'><b>47 Failed Requests</b></font>", td), Paragraph("95.3%", td)],
-        [Paragraph("After (Fault-Tolerant proxy_next_upstream)", td_b), Paragraph("1,000", td), Paragraph("<font color='#16a34a'><b>0 Failed Requests</b></font>", td), Paragraph("<b>100.0% (Zero Downtime)</b>", td)]
-    ]
-    t_fail = Table(fail_data, colWidths=[180, 100, 110, 109])
-    t_fail.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), primary),
-        ('BOX', (0,0), (-1,-1), 1, border),
-        ('INNERGRID', (0,0), (-1,-1), 0.5, border),
-        ('TOPPADDING', (0,0), (-1,-1), 3),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 3),
-        ('LEFTPADDING', (0,0), (-1,-1), 4),
-        ('RIGHTPADDING', (0,0), (-1,-1), 4),
-    ]))
-    story.append(t_fail)
-    story.append(Spacer(1, 4))
+    if os.path.exists("screenshots/1c_failover_zero_downtime.png"):
+        story.append(Image("screenshots/1c_failover_zero_downtime.png", width=img_width, height=140))
+        story.append(Paragraph("Figure 1(c): Failover test output showing reduction from 47 failed requests down to 0 failed requests.", caption))
 
     # 1(d)
     story.append(Paragraph("1(d) Implementation Architecture Diagram with Cloud Bursting (1 Mark)", h2))
-    
-    arch_ascii = """
-[CLIENT BROWSER] ----(Port 8080)----> [NGINX LOAD BALANCER (crbs-nginx-lb:8080)]
-                                               |
-         +-------------------------------------+------------------------------------+
-         | :5001                               | :5002                              | :5003
-         v                                     v                                    v
-[crbs-backend-1 (Flask)]             [crbs-backend-2 (Flask)]            [crbs-backend-3 (Flask)]
-         |                                     |                                    |
-         +-------------------------------------+------------------------------------+
-                                               | TLS 1.3 (Port 27017)
-                                               v
-                        [MONGODB ATLAS CLOUD REPLICA SET (M0)]
+    story.append(Paragraph(
+        "The diagram below illustrates our complete scaled implementation. The <b>Cloud Bursting Component</b> (highlighted in orange) monitors local CPU load. During the 9:00 AM hackathon slot rush, when local container utilization exceeds 80%, it bursts excess traffic to on-demand Render/AWS cloud container instances, scaling back down to zero when the rush subsides. This model fits university schedules perfectly by avoiding 24/7 over-provisioning costs while guaranteeing zero downtime during registration windows.",
+        p
+    ))
 
-==================== CLOUD BURSTING COMPONENT (HIGHLIGHTED) ====================
-[CAMPUS EDGE / CLOUD BURST CONTROLLER] ---> Auto-scales ephemeral Render/AWS instances
-- Triggers when on-premise cluster CPU > 80% during 9:00 AM registration peak.
-- Why chosen: Academic workloads are highly cyclical (massive 9 AM burst, low nights).
-  Cloud bursting prevents paying for 24/7 over-provisioning while ensuring zero downtime.
-"""
-    t_arch = Table([[Paragraph(f"<pre>{arch_ascii.strip()}</pre>", code_block)]], colWidths=[499])
-    t_arch.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,-1), code_bg),
-        ('BOX', (0,0), (-1,-1), 1, border),
-        ('TOPPADDING', (0,0), (-1,-1), 3),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 3),
-        ('LEFTPADDING', (0,0), (-1,-1), 4),
-        ('RIGHTPADDING', (0,0), (-1,-1), 4),
-    ]))
-    story.append(t_arch)
-    story.append(Spacer(1, 6))
+    if os.path.exists("screenshots/1d_architecture_diagram.png"):
+        story.append(Image("screenshots/1d_architecture_diagram.png", width=img_width, height=210))
+        story.append(Paragraph("Figure 1(d): Complete architecture diagram showing frontend, Nginx load balancer (:8080), 3 backends (:5001-5003), MongoDB Atlas, and Cloud Bursting layer in orange.", caption))
 
-    # =========================================================================
-    # QUESTION 2: SECURE YOUR APPLICATION
-    # =========================================================================
+    # ================= QUESTION 2 =================
     story.append(Paragraph("QUESTION 2 — SECURE YOUR APPLICATION (5 MARKS)", h1))
 
     # 2(a)
     story.append(Paragraph("2(a) Sensitive Data Identification & Salted Bcrypt Hashes (1 Mark)", h2))
     story.append(Paragraph(
-        "<b>Sensitive Data Identified:</b> User authentication passwords, student register numbers (e.g. <code>25CSE1011</code>), personal emails, and booking schedules.<br/>"
-        "<b>Bcrypt Salted Hash Implementation:</b> Passwords are never stored in plaintext. They are salted with a 128-bit cryptographic salt and hashed using <b>Bcrypt (work factor 12)</b>.",
+        "<b>Sensitive Data Identified:</b> Student register numbers (<code>register_no</code>, e.g. <code>25CSE1011</code>), personal emails, authentication passwords, and booking event names.<br/>"
+        "<b>Salted Bcrypt Implementation:</b> Passwords are never stored in plaintext. They are salted with a 128-bit cryptographic salt and hashed using <b>Bcrypt (work factor 12)</b>. Hashing the same password twice produces two distinct hashes, defeating precomputed rainbow tables.",
         p
     ))
 
-    hash_data = [
-        [Paragraph("Database State", th), Paragraph("Password Field Value in Database", th), Paragraph("Security Evaluation", th)],
-        [Paragraph("Before (Plaintext)", td_b), Paragraph("<code>\"Pragamugu\"</code>", td), Paragraph("<font color='#dc2626'><b>VULNERABLE:</b> Plaintext credential leak</font>", td)],
-        [Paragraph("After (Salted Bcrypt)", td_b), Paragraph("<code>\"$2b$12$FOWSfUOIE5qv83hj8QQ4ueD2OGqMeK...\"</code>", td), Paragraph("<font color='#16a34a'><b>SECURE:</b> Salted hash resists rainbow tables</font>", td)]
-    ]
-    t_hash = Table(hash_data, colWidths=[120, 220, 159])
-    t_hash.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), primary),
-        ('BOX', (0,0), (-1,-1), 1, border),
-        ('INNERGRID', (0,0), (-1,-1), 0.5, border),
-        ('TOPPADDING', (0,0), (-1,-1), 3),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 3),
-        ('LEFTPADDING', (0,0), (-1,-1), 4),
-        ('RIGHTPADDING', (0,0), (-1,-1), 4),
-    ]))
-    story.append(t_hash)
-    story.append(Spacer(1, 4))
+    if os.path.exists("screenshots/2a_bcrypt_database_before_after.png"):
+        story.append(Image("screenshots/2a_bcrypt_database_before_after.png", width=img_width, height=180))
+        story.append(Paragraph("Figure 2(a): Database document comparison showing insecure plaintext storage before vs. salted Bcrypt hash ($2b$12$) after.", caption))
 
     # 2(b)
     story.append(Paragraph("2(b) Multi-Factor Authentication (TOTP) & Role-Based API Rejection (1.5 Marks)", h2))
     story.append(Paragraph(
-        "<b>1. TOTP Multi-Factor Authentication:</b> Integrated Time-based One-Time Passwords compatible with Google Authenticator and Microsoft Authenticator.<br/>"
-        "• <code>POST /api/auth/2fa/setup</code>: Generates random base32 secret and QR code URI (<code>otpauth://totp/...</code>).<br/>"
-        "• <code>POST /api/auth/2fa/verify</code>: Validates 6-digit TOTP code and activates 2FA.<br/>"
-        "• <code>POST /api/auth/login</code>: Gated login challenges for 6-digit code when MFA is enabled.<br/>"
-        "<b>2. Role-Based Access Control (RBAC) Rejection:</b> Update and Delete APIs (<code>DELETE /api/resources/&lt;id&gt;</code>, <code>PUT /api/resources/&lt;id&gt;</code>, <code>PATCH /api/bookings/&lt;id&gt;/approve</code>) are restricted strictly to <code>staff</code> and <code>admin</code> roles.",
+        "<b>1. Multi-Factor Authentication:</b> Added TOTP 2FA compatible with Google Authenticator and Microsoft Authenticator (<code>POST /api/auth/2fa/setup</code> with QR code, <code>POST /api/auth/2fa/verify</code>). Login requires a 6-digit dynamic token when MFA is active.<br/>"
+        "<b>2. Role-Based Access Control Rejection:</b> Update and Delete endpoints (<code>DELETE /api/resources/&lt;id&gt;</code>, <code>PUT /api/resources/&lt;id&gt;</code>, <code>PATCH /api/bookings/&lt;id&gt;/approve</code>) are restricted strictly to staff and admin roles. Unauthenticated requests are rejected with <b>HTTP 401 Unauthorized</b>, and student attempts are rejected with <b>HTTP 403 Forbidden</b>.",
         p
     ))
 
-    rbac_data = [
-        [Paragraph("API Endpoint Tested", th), Paragraph("Authentication Provided", th), Paragraph("Role", th), Paragraph("Status", th), Paragraph("Server Response", th)],
-        [Paragraph("<code>DELETE /api/resources/&lt;id&gt;</code>", td), Paragraph("None", td), Paragraph("None", td), Paragraph("<b>HTTP 401</b>", td_b), Paragraph("Token is missing or invalid", td)],
-        [Paragraph("<code>PUT /api/resources/&lt;id&gt;</code>", td), Paragraph("None", td), Paragraph("None", td), Paragraph("<b>HTTP 401</b>", td_b), Paragraph("Token is missing or invalid", td)],
-        [Paragraph("<code>PATCH /api/bookings/&lt;id&gt;/approve</code>", td), Paragraph("None", td), Paragraph("None", td), Paragraph("<b>HTTP 401</b>", td_b), Paragraph("Token is missing or invalid", td)],
-        [Paragraph("<code>DELETE /api/resources/&lt;id&gt;</code>", td), Paragraph("Valid Bearer Token", td), Paragraph("<code>student</code>", td), Paragraph("<b>HTTP 403</b>", td_b), Paragraph("Staff or Admin access required", td)]
-    ]
-    t_rbac = Table(rbac_data, colWidths=[130, 85, 55, 60, 169])
-    t_rbac.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), primary),
-        ('BOX', (0,0), (-1,-1), 1, border),
-        ('INNERGRID', (0,0), (-1,-1), 0.5, border),
-        ('TOPPADDING', (0,0), (-1,-1), 2.5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 2.5),
-        ('LEFTPADDING', (0,0), (-1,-1), 3),
-        ('RIGHTPADDING', (0,0), (-1,-1), 3),
-    ]))
-    story.append(t_rbac)
-    story.append(Spacer(1, 4))
+    if os.path.exists("screenshots/2b_totp_mfa_and_rbac_rejection.png"):
+        story.append(Image("screenshots/2b_totp_mfa_and_rbac_rejection.png", width=img_width, height=160))
+        story.append(Paragraph("Figure 2(b): Audit verifying TOTP QR code/code validation and HTTP 401/403 rejection on Update and Delete APIs.", caption))
 
     # 2(c)
     story.append(Paragraph("2(c) Trivy Security Scan & Docker Image Hardening (1.5 Marks)", h2))
     story.append(Paragraph(
-        "<b>Scan Tool:</b> Trivy v0.76.1.<br/>"
-        "<b>Hardening Measures (Dockerfile.hardened):</b> Migrated from Debian-based <code>python:3.12-slim</code> to ultra-minimal <b><code>python:3.12-alpine</code></b>, executed as non-root user <code>appuser:appgroup</code> (UID 10001), and purged build tools in the same layer.",
+        "Scanned the Docker container with <b>Trivy v0.76.1</b>. Hardened the image in <code>Dockerfile.hardened</code> by migrating from Debian <code>python:3.12-slim</code> to minimal <b><code>python:3.12-alpine</code></b>, executing as non-root user <code>appuser:appgroup</code> (UID 10001), and purging build tools. A rescan confirmed that <b>all 44 High vulnerabilities were completely eliminated (-100%)</b>, reducing overall vulnerabilities by 96.4%:",
         p
     ))
 
-    trivy_data = [
-        [Paragraph("Vulnerability Severity", th), Paragraph("Before Hardening (python:3.12-slim)", th), Paragraph("After Hardening (python:3.12-alpine)", th), Paragraph("Improvement / Reduction", th)],
-        [Paragraph("CRITICAL", td_b), Paragraph("0", td), Paragraph("0", td), Paragraph("0 Critical", td)],
-        [Paragraph("HIGH", td_b), Paragraph("<font color='#dc2626'><b>44</b></font>", td), Paragraph("<font color='#16a34a'><b>0</b></font>", td), Paragraph("<font color='#16a34a'><b>-100% (44 Highs Eliminated)</b></font>", td)],
-        [Paragraph("MEDIUM", td_b), Paragraph("63", td), Paragraph("5", td), Paragraph("-92.1% Reduction", td)],
-        [Paragraph("LOW", td_b), Paragraph("62", td), Paragraph("1", td), Paragraph("-98.4% Reduction", td)],
-        [Paragraph("<b>TOTAL VULNERABILITIES</b>", td_b), Paragraph("<b>169</b>", td_b), Paragraph("<b>6</b>", td_b), Paragraph("<b>-96.4% Overall Vulnerability Drop</b>", td_b)]
-    ]
-    t_trivy = Table(trivy_data, colWidths=[130, 120, 120, 129])
-    t_trivy.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), primary),
-        ('BOX', (0,0), (-1,-1), 1, border),
-        ('INNERGRID', (0,0), (-1,-1), 0.5, border),
-        ('TOPPADDING', (0,0), (-1,-1), 3),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 3),
-        ('LEFTPADDING', (0,0), (-1,-1), 4),
-        ('RIGHTPADDING', (0,0), (-1,-1), 4),
-    ]))
-    story.append(t_trivy)
-    story.append(Spacer(1, 4))
+    if os.path.exists("screenshots/2c_trivy_security_scan.png"):
+        story.append(Image("screenshots/2c_trivy_security_scan.png", width=img_width, height=155))
+        story.append(Paragraph("Figure 2(c): Trivy vulnerability scan comparison table showing 44 High vulnerabilities reduced to 0.", caption))
 
     # 2(d)
     story.append(Paragraph("2(d) Threat Modeling & Regulatory Compliance (1 Mark)", h2))
-    
-    threat_data = [
-        [Paragraph("Threat Agent", th), Paragraph("Attack Profile in Campus Domain", th), Paragraph("Implemented Control", th), Paragraph("Applicable Regulation & Reason", th)],
-        [
-            Paragraph("<b>Malicious Student</b><br/>(Insider Threat)", td_b),
-            Paragraph("Authenticated student attempting privilege escalation to approve their own pending reservations, lock labs maliciously, or cancel competitors' hackathon slots.", td),
-            Paragraph("• Cryptographic JWT with role claims.<br/>• Server-side <code>@staff_required</code> / <code>@admin_required</code> decorators.<br/>• Salted Bcrypt password hashing.", td),
-            Paragraph("<b>DPDP Act 2023 (Sec 8) / GDPR Art 32:</b><br/>Mandates technical safeguards to protect student personal data from unauthorized access, modification, or disclosure.", td)
-        ],
-        [
-            Paragraph("<b>External Attacker</b><br/>(Botnet / Credential Stuffer)", td_b),
-            Paragraph("External adversary launching automated brute-force credential stuffing against faculty/admin logins to seize facilities or disrupt university scheduling.", td),
-            Paragraph("• TOTP 2FA (Google Authenticator).<br/>• Admin approval gate for staff accounts.<br/>• Nginx rate-limiting & fail_timeout.", td),
-            Paragraph("<b>GDPR Art 5(1)(f) (Integrity & Confidentiality):</b><br/>Requires appropriate security against unauthorized processing, accidental loss, and damage using modern controls (MFA).", td)
-        ]
-    ]
-    t_threat = Table(threat_data, colWidths=[90, 135, 135, 139])
-    t_threat.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), primary),
-        ('BOX', (0,0), (-1,-1), 1, border),
-        ('INNERGRID', (0,0), (-1,-1), 0.5, border),
-        ('VALIGN', (0,0), (-1,-1), 'TOP'),
-        ('TOPPADDING', (0,0), (-1,-1), 3),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 3),
-        ('LEFTPADDING', (0,0), (-1,-1), 4),
-        ('RIGHTPADDING', (0,0), (-1,-1), 4),
-    ]))
-    story.append(t_threat)
+    story.append(Paragraph(
+        "<b>Threat Agent 1 — Malicious Student (Insider Threat):</b> An enrolled student attempting privilege escalation to approve their own lab bookings or tamper with peer reservations.<br/>"
+        "• <i>Control Implemented:</i> Cryptographically signed JWT tokens with claims verification, server-side <code>@staff_required</code> / <code>@admin_required</code> decorators, and salted Bcrypt hashing.<br/>"
+        "• <i>Regulation & Reason:</i> <b>Digital Personal Data Protection (DPDP) Act 2023 (Section 8)</b> & <b>GDPR Article 32</b>. Legally mandates technical safeguards to protect student personal data from unauthorized access, modification, or disclosure.<br/>"
+        "<b>Threat Agent 2 — External Automated Attacker (Credential Stuffer / Botnet):</b> An external attacker attempting automated dictionary attacks to hijack staff/admin accounts and seize campus facilities.<br/>"
+        "• <i>Control Implemented:</i> TOTP Multi-Factor Authentication (Google Authenticator) requiring a dynamic 6-digit token, admin approval gate for staff accounts, and Nginx connection throttling.<br/>"
+        "• <i>Regulation & Reason:</i> <b>GDPR Article 5(1)(f) (Integrity and Confidentiality)</b>. Requires appropriate security against unauthorized processing, accidental loss, and damage using modern controls such as MFA.",
+        p
+    ))
 
     doc.build(story, canvasmaker=NumberedCanvas)
-    print(f"Assignment 3 Report compiled successfully: {output_filename}")
+    print(f"Full report with embedded screenshots compiled into: {output_filename}")
 
 if __name__ == '__main__':
-    create_assignment3_report()
+    create_full_report()
