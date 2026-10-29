@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Project Report - Campus Resource Booking System</title>
+  <style>
+    @page {
+      margin: 1.5cm;
+      size: A4;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: #24292e;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    h1 {
+      border-bottom: 2px solid #eaecef;
+      padding-bottom: 0.3em;
+      color: #1a56db;
+      font-size: 2.2em;
+    }
+    h2 {
+      border-bottom: 1px solid #eaecef;
+      padding-bottom: 0.3em;
+      margin-top: 1.5em;
+      color: #1f2937;
+    }
+    h3 {
+      margin-top: 1.2em;
+      color: #374151;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1.2em 0;
+      font-size: 0.95em;
+    }
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #f3f4f6;
+      font-weight: 600;
+    }
+    tr:nth-child(even) {
+      background-color: #f9fafb;
+    }
+    pre {
+      background-color: #f6f8fa;
+      border-radius: 6px;
+      padding: 16px;
+      overflow: auto;
+      font-size: 0.9em;
+    }
+    code {
+      background-color: rgba(27,31,35,0.05);
+      border-radius: 3px;
+      padding: 0.2em 0.4em;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 85%;
+    }
+    pre code {
+      background-color: transparent;
+      padding: 0;
+    }
+    .mermaid {
+      display: flex;
+      justify-content: center;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    @media print {
+      body {
+        max-width: 100%;
+        padding: 0;
+      }
+      .mermaid {
+        page-break-inside: avoid;
+      }
+      h1, h2, h3 {
+        page-break-after: avoid;
+      }
+      table {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+    });
+  </script>
+</head>
+<body>
+<h1>Project Report: Campus Resource Booking System (CRBS)</h1>
+<p><strong>Author:</strong> Mugunth<br />
+<strong>System Version:</strong> 1.0.0 (Production Release)<br />
+<strong>Live Production URL:</strong> <a href="https://campus-resource-booking-cqt7.onrender.com">https://campus-resource-booking-cqt7.onrender.com</a><br />
+<strong>GitHub Repository:</strong> <a href="https://github.com/Mugu1825/Campus-Resource-Booking">https://github.com/Mugu1825/Campus-Resource-Booking</a><br />
+<strong>Technology Stack:</strong> Python (Flask, Gunicorn), MongoDB Atlas, HTML5 / Modern CSS / Vanilla JavaScript, Nginx, Docker, Render Cloud</p>
+<hr />
+<h2>1. Executive Summary &amp; Abstract</h2>
+<p>Traditional university campus resource management—covering computer labs, research equipment, seminar halls, and auditoriums—frequently relies on manual paper logs, informal email requests, or basic spreadsheets. These legacy workflows lead to major inefficiencies:
+- <strong>Double Booking &amp; Scheduling Conflicts:</strong> Overlapping time requests without real-time synchronization.
+- <strong>Unverified Access &amp; Inaccurate Categorization:</strong> Lack of structural enforcement on student departments and academic identities.
+- <strong>Administrative Bottlenecks:</strong> A single administrator overwhelmed by routine classroom bookings, or lack of oversight when high-value research gear is reserved.
+- <strong>Hackathon &amp; Extended Event Disruption:</strong> Inability to differentiate between a 1-hour student study session and a 48-hour multi-day departmental hackathon.</p>
+<p>The <strong>Campus Resource Booking System (CRBS)</strong> is a containerized, production-deployed web application designed to automate campus scheduling. It introduces a <strong>3-tier role-based access control (RBAC)</strong> architecture (<em>Student</em>, <em>Staff</em>, <em>Admin</em>), automated student department parsing, dynamic hourly slot availability calculation, double-booking prevention algorithms, and a multi-tier approval pipeline.</p>
+<hr />
+<h2>2. Project Objectives &amp; Scope</h2>
+<ol>
+<li><strong>Automated Academic Identity Verification:</strong> Validate student register numbers against institutional format standards (<code>YY</code> + 3-character department code + 4 digits, e.g., <code>25CSE1011</code>) and automatically extract departmental affiliations without manual user input.</li>
+<li><strong>Multi-Tier Role Governance:</strong></li>
+<li><strong>Student:</strong> Self-service registration, live resource browsing, slot availability inspection, booking submission, and self-cancellation of pending requests.</li>
+<li><strong>Staff:</strong> Departmental oversight with mandatory admin approval before activation; ability to manage standard resources and approve standard bookings.</li>
+<li><strong>Admin:</strong> Master overseer managing staff activations, global user roles, all resource tiers, and exclusive approval authority over premium resources and multi-day hackathons.</li>
+<li><strong>Resource Categorization &amp; Time Constraints:</strong></li>
+<li><strong>Standard Resources:</strong> Labs, classrooms, and seminar rooms approved by staff or admin. Regular bookings capped at <strong>4 hours</strong> on a single day.</li>
+<li><strong>Premium Resources:</strong> High-performance compute clusters and central auditoriums requiring <strong>Admin-only</strong> approval.</li>
+<li><strong>Hackathon Bookings:</strong> Multi-day bookings permitted up to <strong>48 hours</strong>, requiring verified event names and Admin-only sign-off.</li>
+<li><strong>DevOps &amp; Cloud-Native Deployment:</strong> Single-container Docker packaging utilizing Nginx as a reverse proxy and static file server, routing to a Gunicorn-powered Flask WSGI backend, deployed on Render with an active MongoDB Atlas cluster.</li>
+</ol>
+<hr />
+<h2>3. System Architecture &amp; Containerization</h2>
+<p>CRBS implements a unified <strong>single-container micro-architecture</strong> that eliminates Cross-Origin Resource Sharing (CORS) complications and optimizes cloud hosting costs.</p>
+<pre class="mermaid">
+graph TD
+    Client["Client Browser (Desktop / Mobile)"]
+
+    subgraph "Docker Container (Render Cloud Web Service)"
+        Nginx["Nginx Reverse Proxy (:80 or $PORT)"]
+        Frontend["Frontend Static Engine<br/>(/usr/share/nginx/html)<br/>HTML5, CSS3, Vanilla JS"]
+        Gunicorn["WSGI Server (Gunicorn :5000)<br/>2 Workers, 2 Threads"]
+        Flask["Flask Application Engine<br/>REST API Blueprints"]
+    end
+
+    Atlas[("MongoDB Atlas Cloud<br/>ReplicaSet (TLS Encrypted)")]
+
+    Client -->|"HTTP/HTTPS Request"| Nginx
+    Nginx -->|"Static Routes (/*, /css/*, /js/*)"| Frontend
+    Nginx -->|"API Routes (/api/*)"| Gunicorn
+    Gunicorn --> Flask
+    Flask -->|"PyMongo Driver"| Atlas
+</pre>
+
+<h3>Key Architectural Advantages</h3>
+<ul>
+<li><strong>Unified Domain Routing:</strong> Both frontend pages and <code>/api/*</code> endpoints are exposed through the same host and port. This guarantees zero CORS pre-flight delays and simplifies client-side code.</li>
+<li><strong>Dynamic Port Adaptation:</strong> The entrypoint startup script dynamically evaluates Render's injected <code>$PORT</code> environment variable (defaulting to port 80 locally) and injects it into the Nginx configuration at boot.</li>
+<li><strong>Independent Failure Isolation:</strong> Gunicorn runs on loopback (<code>127.0.0.1:5000</code>), shielded from direct external internet exposure by Nginx.</li>
+</ul>
+<hr />
+<h2>4. Database Architecture &amp; Data Models</h2>
+<p>CRBS uses <strong>MongoDB Atlas</strong>, taking advantage of flexible document schemas, native high availability through replica sets, and query indexing.</p>
+<h3>Entity-Relationship Diagram (ERD)</h3>
+<pre class="mermaid">
+erDiagram
+    USERS ||--o{ BOOKINGS : "submits"
+    RESOURCES ||--o{ BOOKINGS : "is reserved for"
+    USERS ||--o{ RESOURCES : "administers"
+
+    USERS {
+        ObjectId _id PK
+        string name
+        string email UK
+        string password "bcrypt hash"
+        string role "student | staff | admin"
+        string account_status "active | pending | rejected"
+        string register_no "nullable, sparse UK"
+        string department "3-char code (e.g. CSE, ECE)"
+        date created_at
+    }
+
+    RESOURCES {
+        ObjectId _id PK
+        string name
+        string type "lab | room | equipment | auditorium"
+        string tier "standard | premium"
+        string location
+        int capacity
+        bool is_available
+        date created_at
+    }
+
+    BOOKINGS {
+        ObjectId _id PK
+        ObjectId user_id FK
+        ObjectId resource_id FK
+        string date_start "YYYY-MM-DD"
+        string date_end "YYYY-MM-DD"
+        string start_slot "HH:MM (e.g. 10:00)"
+        string end_slot "HH:MM (e.g. 14:00)"
+        bool is_hackathon
+        string hackathon_event "nullable"
+        string status "pending | approved | rejected | cancelled"
+        string approved_by "nullable FK"
+        date created_at
+    }
+</pre>
+
+<h3>Indexing Strategy</h3>
+<p>To guarantee performance under high concurrency:
+1. <code>users.email</code> (Unique Index) — Guarantees zero duplicate account registrations.
+2. <code>users.register_no</code> (Unique, Sparse Index) — Ensures one student registration per academic roll number while allowing staff/admin accounts without roll numbers.
+3. <code>resources.tier</code> &amp; <code>resources.is_available</code> — Optimizes filtering queries when users browse available spaces.
+4. <code>bookings.resource_id + bookings.date_start + bookings.date_end</code> (Compound Index) — Enables high-speed conflict detection when calculating available time intervals.</p>
+<hr />
+<h2>5. Security &amp; Authentication Model</h2>
+<pre class="mermaid">
+sequenceDiagram
+    autonumber
+    actor User as Client
+    participant FE as Frontend (Vanilla JS)
+    participant API as Backend Auth API
+    participant DB as MongoDB Atlas
+
+    User->>FE: Enters email and password
+    FE->>API: POST /api/auth/login
+    API->>DB: Find user by email (case-insensitive)
+    DB-->>API: User Document
+    API->>API: Verify bcrypt password hash
+    alt Account is Pending
+        API-->>FE: 403 Forbidden ("Awaiting Admin Approval")
+    else Password Match & Active
+        API->>API: Generate signed JWT (8-hr validity)
+        API-->>FE: 200 OK (Token + Role + User Info)
+        FE->>FE: Store Token in localStorage (crbs_token)
+        FE->>User: Redirect based on role (Dashboard / Staff / Admin)
+    end
+</pre>
+
+<h3>Security Safeguards</h3>
+<ul>
+<li><strong>Bcrypt Salted Hashing:</strong> Passwords are never stored in plaintext. They are salted and hashed using <code>Flask-Bcrypt</code>.</li>
+<li><strong>JWT Identity &amp; Claims:</strong> Access tokens encapsulate the user ID as subject, with role and status stored in cryptographically signed claims.</li>
+<li><strong>Python Function Decorators:</strong></li>
+<li><code>@login_required()</code>: Verifies token validity and checks for <code>active</code> account status.</li>
+<li><code>@staff_required()</code>: Enforces that the caller holds either <code>staff</code> or <code>admin</code> status.</li>
+<li><code>@admin_required()</code>: Restricts endpoint execution strictly to the system <code>admin</code>.</li>
+</ul>
+<hr />
+<h2>6. Business Logic &amp; Conflict Prevention Engine</h2>
+<h3>Double-Booking Prevention Algorithm</h3>
+<p>When a booking is submitted:
+1. Query active bookings where <code>status IN ['pending', 'approved']</code> for the target resource.
+2. <strong>Date Interval Overlap Check:</strong>
+   $$\text{Booking}<em>{\text{start}} \le \text{Existing}</em>{\text{end}} \quad \text{AND} \quad \text{Booking}<em>{\text{end}} \ge \text{Existing}</em>{\text{start}}$$
+3. <strong>Slot Interval Overlap Check (Single-Day):</strong>
+   If both bookings share the same date, indices within the fixed operational array <code>['09:00', '10:00', ..., '21:00']</code> are compared:
+   $$\text{SlotIndex}<em>{\text{start}} &lt; \text{ExistingIndex}</em>{\text{end}} \quad \text{AND} \quad \text{SlotIndex}<em>{\text{end}} &gt; \text{ExistingIndex}</em>{\text{start}}$$
+4. <strong>Hackathon Preemption:</strong> If either reservation is marked as a multi-day hackathon, all slots across the reserved date range are locked.</p>
+<hr />
+<h2>7. Complete REST API Specification</h2>
+<h3>Authentication &amp; Identification (<code>/api/auth</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Access Level</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/auth/register/student</code></td>
+<td>Public</td>
+<td>Registers student with format validation and auto department parsing</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/auth/register/staff</code></td>
+<td>Public</td>
+<td>Registers staff account with <code>account_status: pending</code></td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/auth/login</code></td>
+<td>Public</td>
+<td>Authenticates credentials and returns JWT bearer token</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/auth/departments</code></td>
+<td>Public</td>
+<td>Returns list of valid 3-letter department codes</td>
+</tr>
+</tbody>
+</table>
+<h3>Resource Management (<code>/api/resources</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Access Level</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/resources/</code></td>
+<td>Public</td>
+<td>Lists all campus resources (supports filter by type and tier)</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/resources/&lt;id&gt;</code></td>
+<td>Public</td>
+<td>Returns details of a specific resource</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/resources/&lt;id&gt;/availability</code></td>
+<td>Public</td>
+<td>Returns array of booked and available slots for a given date</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/resources/</code></td>
+<td>Staff / Admin</td>
+<td>Creates resource (Staff limited strictly to standard tier)</td>
+</tr>
+<tr>
+<td><code>PUT</code></td>
+<td><code>/api/resources/&lt;id&gt;</code></td>
+<td>Staff / Admin</td>
+<td>Updates resource attributes</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/api/resources/&lt;id&gt;/availability</code></td>
+<td>Staff / Admin</td>
+<td>Toggles resource availability flag (<code>is_available</code>)</td>
+</tr>
+<tr>
+<td><code>DELETE</code></td>
+<td><code>/api/resources/&lt;id&gt;</code></td>
+<td>Staff / Admin</td>
+<td>Deletes resource (blocked if active bookings exist)</td>
+</tr>
+</tbody>
+</table>
+<h3>Booking Lifecycle (<code>/api/bookings</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Access Level</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/bookings/</code></td>
+<td>Authenticated</td>
+<td>Role-aware: Students see own; Staff see standard; Admin see all</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/bookings/my</code></td>
+<td>Student</td>
+<td>Returns authenticated student's reservation history</td>
+</tr>
+<tr>
+<td><code>POST</code></td>
+<td><code>/api/bookings/</code></td>
+<td>Student</td>
+<td>Submits new booking request with conflict verification</td>
+</tr>
+<tr>
+<td><code>PUT/PATCH</code></td>
+<td><code>/api/bookings/&lt;id&gt;/approve</code></td>
+<td>Staff / Admin</td>
+<td>Approves booking (Staff blocked on premium/hackathons)</td>
+</tr>
+<tr>
+<td><code>PUT/PATCH</code></td>
+<td><code>/api/bookings/&lt;id&gt;/reject</code></td>
+<td>Staff / Admin</td>
+<td>Rejects booking</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/api/bookings/&lt;id&gt;/cancel</code></td>
+<td>Student / Admin</td>
+<td>Cancels pending booking</td>
+</tr>
+</tbody>
+</table>
+<h3>Administration &amp; Governance (<code>/api/admin</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Access Level</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/admin/stats</code></td>
+<td>Admin</td>
+<td>Real-time counts of users, resources, bookings, and pending staff</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/admin/users</code></td>
+<td>Admin</td>
+<td>Lists all user accounts (passwords omitted)</td>
+</tr>
+<tr>
+<td><code>GET</code></td>
+<td><code>/api/admin/pending-staff</code></td>
+<td>Admin</td>
+<td>Retrieves list of staff accounts awaiting approval</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/api/admin/staff/&lt;id&gt;/approve</code></td>
+<td>Admin</td>
+<td>Activates staff account</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/api/admin/staff/&lt;id&gt;/reject</code></td>
+<td>Admin</td>
+<td>Rejects staff registration</td>
+</tr>
+<tr>
+<td><code>PATCH</code></td>
+<td><code>/api/admin/users/&lt;id&gt;/role</code></td>
+<td>Admin</td>
+<td>Modifies user permissions (<code>student</code>, <code>staff</code>, <code>admin</code>)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>8. Verification &amp; Quality Assurance Report</h2>
+<p>An automated test suite (<code>tests/verify_codebase.py</code>) was executed to evaluate all functional criteria prior to deployment.</p>
+<pre><code class="language-text">======================================================================
+📊 AUTOMATED VERIFICATION AUDIT SUMMARY: 31 PASSED | 0 FAILED
+======================================================================
+[1] Health Check &amp; Public Routes          -&gt; 2 / 2 PASSED (100%)
+[2] Register Number Validation            -&gt; 4 / 4 PASSED (100%)
+[3] Staff Registration &amp; Approval Flow   -&gt; 6 / 6 PASSED (100%)
+[4] Resource Tiering &amp; Security Guards    -&gt; 3 / 3 PASSED (100%)
+[5] Booking Engine &amp; Overlap Prevention   -&gt; 7 / 7 PASSED (100%)
+[6] Approval Permissions &amp; Gating         -&gt; 5 / 5 PASSED (100%)
+[7] Student Self-Service Cancellation    -&gt; 2 / 2 PASSED (100%)
+[8] Dynamic Availability Endpoint         -&gt; 1 / 1 PASSED (100%)
+[9] Admin Overview Stats Aggregation     -&gt; 1 / 1 PASSED (100%)
+</code></pre>
+<hr />
+<h2>9. Conclusion &amp; Future Enhancements</h2>
+<p>The <strong>Campus Resource Booking System</strong> is fully operational and verified. It replaces manual reservation workflows with an automated, role-governed web application. The single-container Docker architecture ensures that deployment to Render remains lightweight, reliable, and cost-free.</p>
+<h3>Future Roadmap</h3>
+<ol>
+<li><strong>Automated Notification Dispatcher:</strong> Integration of transactional email or SMS alerts (via SendGrid / Twilio) to notify students instantly upon booking approval or rejection.</li>
+<li><strong>Hardware IoT Smart Lock Integration:</strong> Generating temporary dynamic QR codes or RFID credentials synced with approved booking windows to unlock laboratory doors physically.</li>
+<li><strong>Calendar Integration:</strong> Exporting approved reservations directly to Google Calendar or Microsoft Outlook via <code>.ics</code> feeds.</li>
+</ol>
+</body>
+</html>

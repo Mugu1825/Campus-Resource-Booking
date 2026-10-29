@@ -77,9 +77,21 @@ def create_app():
     app.register_blueprint(bookings_bp)
     app.register_blueprint(admin_bp)
 
+    @app.after_request
+    def add_instance_header(response):
+        instance_id = os.getenv('INSTANCE_ID', os.uname().nodename)
+        response.headers['X-Backend-Instance'] = instance_id
+        return response
+
     @app.route('/api/health', methods=['GET'])
     def health_check():
-        return jsonify({'status': 'ok'}), 200
+        instance_id = os.getenv('INSTANCE_ID', os.uname().nodename)
+        return jsonify({'status': 'ok', 'instance': instance_id}), 200
+
+    @app.route('/api/instance', methods=['GET'])
+    def get_instance():
+        instance_id = os.getenv('INSTANCE_ID', os.uname().nodename)
+        return jsonify({'instance': instance_id, 'status': 'ok'}), 200
 
     return app
 
